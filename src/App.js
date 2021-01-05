@@ -5,8 +5,15 @@ import Authentication from './Pages/Authentication/Authentication';
 import Category from './Pages/Category/Category';
 import Checkout from './Pages/Checkout/Checkout';
 import CategoryProducts from './Pages/CategoryProducts/CategoryProducts';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { checkAuthState } from './Redux/Auth/AuthActions';
 
-function App() {
+function App({checkAuthState}) {
+  useEffect(()=>{
+    checkAuthState()
+  },[])
+
   return (
     <div className="App">
       <Switch>
@@ -20,4 +27,8 @@ function App() {
   );
 }
 
-export default App;
+var action = {
+  checkAuthState
+}
+
+export default connect(null,action)(App);

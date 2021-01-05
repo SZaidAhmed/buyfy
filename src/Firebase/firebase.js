@@ -17,5 +17,6 @@ firebase.initializeApp(firebaseConfig);
 export var auth = firebase.auth();
 export var firestore = firebase.firestore();
 export var serverTimeStamp =()=> firebase.firestore.FieldValue.serverTimestamp();
+export var googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 
 export default firebase;

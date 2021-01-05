@@ -1,5 +1,6 @@
-import { auth, firestore, serverTimeStamp } from './../../Firebase/firebase';
+import { auth , firestore, googleAuthProvider, serverTimeStamp } from './../../Firebase/firebase';
 import { REMOVE_USER, SET_USER } from './AuthConstants';
+import firebase from "../../Firebase/firebase"
 
 export var setUser = (user) =>async(dispatch)=>{
     try {   
@@ -62,6 +63,53 @@ export var signout = () => async(dispatch)=>{
     try {
         await auth.signOut()
         dispatch(removeUser())
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export var googleSignin = () =>async (dispatch) =>{
+    try {
+        var {user:{displayName , email , uid} , additionalUserInfo :{isNewUser}} = await auth.signInWithPopup(googleAuthProvider);
+        if (isNewUser) {    
+            var userInfo = {
+                Fullname : displayName,
+                Email : email,
+                createdAt : serverTimeStamp()
+            }
+            await firestore.collection("users").doc(uid).set(userInfo);
+            dispatch(setUser(userInfo))
+        } else {
+            var userDataForState = {
+                Fullname : displayName,
+                Email : email,
+                uid
+            }
+            dispatch(setUser(userDataForState))
+        }
+    } catch (error) {
+        console.log(error)
+        
+    }
+}
+export var checkAuthState = () => async (dispatch) =>{
+    try {
+        firebase.auth().onAuthStateChanged(async function(user){
+            if (user) {
+                var {uid} = user;
+                var userData = await firestore.collection("users").doc(uid).get()
+                var {Email , Fullname} = userData.data()
+                var userDataForState = {
+                    Fullname,
+                    Email,
+                    uid
+                }
+                dispatch(setUser(userDataForState))
+                console.log(uid) 
+            } else {
+                
+            }
+        })
     } catch (error) {
         console.log(error)
     }
